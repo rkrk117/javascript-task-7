@@ -8,6 +8,40 @@ exports.runParallel = runParallel;
  * @param {Number} parallelNum - число одновременно исполняющихся промисов
  * @param {Number} timeout - таймаут работы промиса
  */
+
 function runParallel(jobs, parallelNum, timeout = 1000) {
-    // асинхронная магия
+    var results = [];
+    var alreadyFinnished = 0;
+    var currentJob = 0;
+    var firstJobs = jobs.slice(0, parallelNum);
+
+    function run(job, i, resolve) {
+        currentJob++;
+
+        return new Promise(microResolve => {
+            job().then(microResolve);
+            setTimeout(() => microResolve(new Error('Promise timeout')), timeout);
+        }).then(result => addAndRun(result, i, resolve));
+    }
+
+    function addAndRun(result, i, resolve) {
+        results[i] = result;
+        alreadyFinnished++;
+        if (alreadyFinnished === jobs.length) {
+            resolve(results);
+        }
+        if (currentJob < jobs.length) {
+            run(jobs[currentJob], currentJob, resolve);
+        }
+    }
+
+    return new Promise(resolve => {
+        if (firstJobs.length === 0) {
+            resolve([]);
+        } else {
+            firstJobs.forEach((job, index) => {
+                run(job, index, resolve);
+            });
+        }
+    });
 }
