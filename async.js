@@ -19,7 +19,7 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
         currentJob++;
 
         return new Promise(microResolve => {
-            job().then(microResolve);
+            job().then(microResolve, microResolve);
             setTimeout(() => microResolve(new Error('Promise timeout')), timeout);
         }).then(result => addAndRun(result, i, resolve));
     }
