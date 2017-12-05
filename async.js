@@ -24,11 +24,11 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
         }).then(function (result) {
             results[i] = result;
             alreadyFinnished++;
-            addAndRun(result, i, resolve);
+            addAndRun(result, resolve);
         });
     }
 
-    function addAndRun(result, i, resolve) {
+    function addAndRun(result, resolve) {
         if (alreadyFinnished === jobs.length) {
             resolve(results);
         } else if (currentJob < jobs.length) {
