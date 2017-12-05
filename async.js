@@ -21,17 +21,18 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
         return new Promise(microResolve => {
             job().then(microResolve, microResolve);
             setTimeout(() => microResolve(new Error('Promise timeout')), timeout);
-        }).then(result => addAndRun(result, i, resolve));
+        }).then(function (result) {
+            results[i] = result;
+            alreadyFinnished++;
+            addAndRun(result, resolve);
+        });
     }
 
-    function addAndRun(result, i, resolve) {
-        results[i] = result;
-        alreadyFinnished++;
-        if (alreadyFinnished === jobs.length) {
-            resolve(results);
-        }
+    function addAndRun(result, resolve) {
         if (currentJob < jobs.length) {
             run(jobs[currentJob], currentJob, resolve);
+        } else if (alreadyFinnished === jobs.length) {
+            resolve(results);
         }
     }
 
