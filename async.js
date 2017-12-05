@@ -24,15 +24,16 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
         }).then(function (result) {
             results[i] = result;
             alreadyFinnished++;
-            addAndRun(result, resolve);
+            addAndRun(result, i, resolve);
         });
     }
 
-    function addAndRun(result, resolve) {
+    function addAndRun(result, i, resolve) {
+        if (alreadyFinnished === jobs.length) {
+            resolve(results);
+        }
         if (currentJob < jobs.length) {
             run(jobs[currentJob], currentJob, resolve);
-        } else if (alreadyFinnished === jobs.length) {
-            resolve(results);
         }
     }
 
